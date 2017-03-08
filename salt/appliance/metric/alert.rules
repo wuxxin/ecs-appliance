@@ -62,3 +62,17 @@ ALERT NodeLoadHigh
         summary = "Instance {{ $labels.instance }} under high load",
         description = "{{ $labels.instance }} of job {{ $labels.job }} is under high load.",
     }
+
+ALERT NodeMdadmResync
+    IF node_md_is_active and (node_md_disks != node_md_disks_active or node_md_blocks != node_md_blocks_synced)
+    ANNOTATIONS {
+        summary = "Instance {{ $labels.instance }} mdadm is resyncing",
+        description = "{{ $labels.instance }} mdadm is resyncing.",
+    }
+
+ALERT NodeHwmonTemperatureHigh
+    IF node_hwmon_temp_celsius > 90
+    ANNOTATIONS {
+        summary = "Instance {{ $labels.instance }} cpu temperature is high {{ $value}}",
+        description = "{{ $labels.instance }} cpu temperature is higher than the threshold (90°C) with a value of {{ $value }}",
+    }
