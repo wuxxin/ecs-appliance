@@ -12,6 +12,32 @@ backup:
       - cifs-utils
       # https://sourceforge.net/projects/pgbarman/
 
+rpcbind_deny:
+  file.replace:
+    - name: /etc/hosts.deny
+    - pattern: |
+        ^rpcbind[ \t]*:
+    - repl: |
+        rpcbind : ALL
+    - append_if_not_found: true
+
+rpcbind_allow:
+  file.replace:
+    - name: /etc/hosts.deny
+    - pattern: |
+        ^rpcbind[ \t]*:
+    - repl: |
+        rpcbind : 127.0.0.1/8, {{ salt['pillar.get']('docker:net') }}
+    - append_if_not_found: true
+
+nfs_transport:
+  pkg.installed:
+    - pkgs:
+      - nfs-common
+    - require:
+      - file: rpcbind_deny
+      - file: rpcbind_allow
+
 /usr/local/share/appliance/prepare-backup.sh:
   file.managed:
     - source: salt://appliance/backup/prepare-backup.sh
